@@ -1,0 +1,19 @@
+{
+  "welcome_achievement": "Добро пожаловать<Быть участником сервера><low>",
+  "rares": {
+    "low": "0x7FFF00",
+    "medium": "0xFFFF00",
+    "hard": "0xFF0000",
+    "epic": "0x800080",
+    "demon": "0x000000"
+  },
+  "voicechannels_timed_achievements":
+  {
+    "Норма безработного": {"time": 1, "decription": "Просиди в голосовом канале 1 секунду", "rare": "low"},
+    "Суточная норма": {"time": 86400, "decription": "Просиди в голосовом канале 24 часа ", "rare": "low"}
+  },
+
+  "messages_days": {
+    "Тест": {"days": 3, "messages": 30, "descriptopn": "Пишите не менее 30 сообщений на протяжении 3 дней", "rare": "low"}
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "welcome_achievement": "Добро пожаловать, лошок<Быть участником сервера><low>",
+  "rares": {
+    "low": "0x7FFF00",
+    "medium": "0xFFFF00",
+    "hard": "0xFF0000",
+    "epyc": "0x800080",
+    "demon": "0x000000"
+  },
+  "voicechannels_timed_achievements":
+  {
+    "Норма безработного": {"time": 1, "description": "Просиди в голосовом канале 1 секунду", "rare": "low"},
+    "Суточная норма": {"time": 86400, "description": "Просиди в голосовом канале 24 часа ", "rare": "low"}
+  },
+
+  "messages_any_day":
+  {
+    "Первое слово": {"message_count": 1, "description": "Напиши одно сообщение", "rare": "low"}
+  },
+
+  "messages_days": {
+    "Тест": {"days": 3, "messages": 30, "descriptopn": "Пишите не менее 30 сообщений на протяжении 3 дней", "rare": "low"}
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "welcome_achievement": "Добро пожаловать<Быть участником сервера><low>",
+  "rares": {
+    "low": "0x7FFF00",
+    "medium": "0xFFFF00",
+    "hard": "0xFF0000",
+    "epic": "0x800080",
+    "demon": "0x000000"
+  },
+  "seasons": {
+    "season_1": {"count": 5, "achieve": {"name": "Крутой", "description": "Собери все ачивки первого сезона", "rare": "demon"}}
+  },
+  "voicechannels_timed_achievements":
+  {
+    "Первый разговор": {"season": 1, "time": 1, "description": "Зайди в голосовой канал", "rare": "low"},
+    "Долгий разговор": {"season": 1, "time": 86000, "description": "Просиди в голосовом канале 24 часа", "rare": "medium"}
+  },
+
+  "messages_any_day":
+  {
+    "Первое слово": {"season": 1, "message_count": 1, "description": "Напиши одно сообщение", "rare": "low"}
+  },
+
+  "messages_days": {
+    "Суточная норма": {"season": 1, "days": 1, "messages": 25, "description": "Написать за сутки 25 сообщений", "rare": "medium"}
+  },
+
+  "has_role_achievements": {
+    "Админ": {"season": 1, "role": "♔ Владелец ♕,Куратор,Администратор,Модератор", "description": "Вступить в ряды администрации", "rare": "epic"}
+  },
+  "invites": {
+    "Приглашатель": {"season": 1, "invite_count": 1, "description": "Пригласи одного человека", "rare": "low"}
+  }
+}
