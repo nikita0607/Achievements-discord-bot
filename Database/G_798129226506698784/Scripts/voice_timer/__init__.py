@@ -2,8 +2,7 @@ from discord.ext import commands
 
 
 def init(client: commands.Bot):
-    print("HellO")
-
+    pass
 
 async def on_message(ctx, listener):
     if ctx.author.bot:
@@ -45,6 +44,8 @@ def voice_check(guild, member, listener, database):
     av_achive_name = [achive[0] for achive in av_achive]
 
     voice_ch_time = database.get_field(guild, member.mention, "vc_time")
+
+    # print(voice_ch_time, member.name)
 
     if voice_ch_time is None:
         voice_ch_time = 0

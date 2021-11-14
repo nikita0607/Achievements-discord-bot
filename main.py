@@ -1,3 +1,6 @@
+import re
+import typing
+
 import DiscordUtils
 
 from Cybernator import Paginator
@@ -151,7 +154,40 @@ def get_chat(ctx):
 
 def normalize_content(content):
     _c = content.split()[:2]
-    return content.replace(_c[0], "").replace(_c[1], "")[2:]
+    return content.replace(_c[0], "").replace(_c[1], "")[2:].strip()
+
+
+def get_args_from_content(content: str, normolized=False):
+    if not normolized:
+        content = normalize_content(content)
+
+    kwargs = {}
+    args = []
+
+    str_kwargs: typing.List[str] = re.findall(" [^\s]*=\".*?\"", content)
+    for _id, arg in enumerate(str_kwargs):
+        content = content.replace(arg, "", 1)
+        str_kwargs[_id] = arg[1:]
+
+    simple_kwargs: typing.List[str] = re.findall("[^\s]*=[^\s]*", content)
+
+    for _id, arg in enumerate(simple_kwargs):
+        content = content.replace(arg, "", 1)
+        simple_kwargs[_id] = simple_kwargs[_id].strip()
+
+    # print(str_kwargs, simple_kwargs, sep="\n")
+
+    args = content.strip().split()
+
+    for arg in str_kwargs:
+        _arg = arg.split("=")
+        kwargs[_arg[0]] = _arg[1]
+
+    for arg in simple_kwargs:
+        _arg = arg.split("=")
+        kwargs[_arg[0]] = _arg[1]
+
+    return args, kwargs
 
 
 async def send_error(ctx, error_msg):
@@ -230,6 +266,7 @@ async def on_member_join(member):
 
 is_ready = False
 
+
 @client.event
 async def on_ready():
     global is_ready
@@ -258,7 +295,6 @@ async def on_ready():
 
     print("Ready!")
     bot_logger.log("Bot is ready!")
-
 
 @client.event
 async def on_voice_state_update(member: Member, before: discord.VoiceState, after: discord.VoiceState):
@@ -311,6 +347,7 @@ async def delete_all(ctx: commands.context.Context):
 @client.command(aliases=["дать"])
 @has_admin_role()
 async def give(ctx: commands.context.Context):
+    print(get_args_from_content(ctx.message.content))
     msg = ctx.message.content.replace("\n", "")
 
     msg = msg.replace(" ", "", 1)
@@ -360,15 +397,20 @@ async def get_field(ctx: commands.context.Context):
 @commands_error_handler
 async def set_field(ctx: commands.context.Context):
     content = normalize_content(ctx.message.content)
+
     member, field_values = get_member_from_text(ctx.guild, ctx.author, content)
-    field_values = field_values.split("  ")
-    if len(field_values) < 2:
-        await send_error(ctx, f"Нужно писать: `{command_prefix} set_field FIElD_NAME FIELD_VALUE`")
+    _, field_values = get_args_from_content(content, True)
+
+    if not len(field_values):
+        await send_error(ctx, f"{command_prefix} set_field ARG1=VAL1 ARG2=VAL2")
         return
 
-    database.set_field(ctx.guild, member.mention, field_values[0], field_values[1])
+    msg = ""
+    for arg in field_values:
+        database.set_field(ctx.guild, member.mention, arg, field_values[arg])
+        msg += f"{arg} = {field_values[arg]}\n"
 
-    await send_succes(ctx, f"{field_values[0]} = {field_values[1]}")
+    await send_succes(ctx, msg)
 
 
 @client.command(aliases=["роль"])
@@ -459,11 +501,11 @@ async def achievements(ctx: commands.context.Context):
         embeds[rare][0].set_author(name=member.name, icon_url=member.avatar_url)
 
     for num, achieve in enumerate(database.get_achievements(ctx.guild, member.mention)):
-        embeds[achieve[2]][0].add_field(name=f"{achieve[0]}. ", value=f"Описание: {achieve[1]}", inline=True)
+        embeds[achieve[2]][0].add_field(name=f"{achieve[0]}. ", value=f"Описание: {achieve[1]}\n", inline=True)
         embeds[achieve[2]][1] += 1
 
     for emb in embeds:
-        embeds[emb][0].add_field(name="\n_______ _______ _______ _______ _______ _______ _______ _______",
+        embeds[emb][0].add_field(name="_______ _______ _______ _______ _______ _______ _______ _______",
                                  value=f"Количество {emb.upper()} ачивок: {embeds[emb][1]}")
 
     embeds = [embeds[i][0] for i in embeds]

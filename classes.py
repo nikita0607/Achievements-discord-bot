@@ -169,6 +169,7 @@ class Database:
         self.new_member(guild, mention)
 
         field = self.get_field(guild, mention, name)
+        print(f"'{name}'", field)
 
         with sqlite3.connect(f"Database/G_{guild.id}/database.db") as db:
             sql = db.cursor()
@@ -182,7 +183,7 @@ class Database:
             else:
                 fields = sql.fetchone()[2].replace(f"{name}={field},", f"{name}={str(value)},")
 
-            # print(fields)
+            print(fields)
             sql.execute("UPDATE members SET fields=? WHERE mention=?", (fields, mention))
 
     @logs.error_handler
@@ -224,7 +225,7 @@ class Database:
         with sqlite3.connect(f"Database/G_{guild.id}/database.db") as db:
             sql = db.cursor()
 
-            sql.execute(f"UPDATE members SET achieve=?, vc_time=0 WHERE mention=?", (self.welcome_achievement, mention))
+            sql.execute(f"UPDATE members SET achieve=? WHERE mention=?", (self.welcome_achievement, mention))
 
     def delete_achievement(self, guild, mention, achieve_name):
         self.new_member(guild, mention)
@@ -358,6 +359,8 @@ class AchievementsListener:
         self.achievement_path = achievements_path
         self.guild = guild
 
+        self.precreated_achievements = self.rares = self.welcome_achievement = None
+
         self.logger = Log("Listener", achievements_path)
 
         self.open_achievements()
@@ -376,7 +379,7 @@ class AchievementsListener:
             try:
                 self.scripts[-1].init(client)
             except Exception as ex:
-                self.logger.log("Exception while init script: ", ex)
+                self.logger.log("Exception while init script: ", str(ex))
 
     def open_achievements(self):
         self.precreated_achievements = json.load(open(f"{self.achievement_path}achievements.json", encoding="utf-8"))
@@ -409,10 +412,9 @@ class AchievementsListener:
             await asyncio.sleep(0.5)
 
     async def on_message(self, ctx):
-        # print(f"Message from {ctx.author.name}")
         if self.guild is None:
             return
-        for script in self.database.scripts[f"{self.guild.id}"]:
+        for script in self.scripts:
             try:
                 await script.on_message(ctx, self)
             except AttributeError:
@@ -425,7 +427,7 @@ class AchievementsListener:
             await self.check(guild, member)
 
     async def check(self, guild: Guild, member: Member):
-        for script in self.database.scripts[f"{guild.id}"]:
+        for script in self.scripts:
             try:
                 await script.check(client, guild, member, self, self.database)
             except:
