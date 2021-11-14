@@ -37,10 +37,27 @@ class Log:
         self._from = _from
 
     def log(self, text="", _from=""):
+        text, _from = str(text), str(_from)
+
         if not len(_from) and self._from is not None:
             _from = self._from
 
         _s = f"{time.strftime('%d/%m/%y %T')}: {_from}: {text}\n"
+
+        with open(f"{self.log_path}logs.log", encoding="utf-8") as file:
+            lines = file.readlines()
+
+            if len(lines) > 100:
+                with open(f"{self.log_path}old_log_{time.strftime('%d_%m_%y %H_%M')}.log", 'w', encoding="utf-8") as new_file:
+                    new_file.writelines(lines)
+
+                file.close()
+
+                with open(f"{self.log_path}logs.log", "w") as new_file:
+                    new_file.write("")
+
+                file = open(f"{self.log_path}logs.log", encoding="utf-8")
+
         with open(f"{self.log_path}logs.log", "a", encoding="utf-8") as file:
             file.write(_s)
 
@@ -73,7 +90,6 @@ class Database:
         self.logs = Log("Database")
 
         self.scripts = {}
-        # self.scripts = importlib.import_module("Database")
 
     # @logs.error_handler
     def add_guild(self, guild):
@@ -99,14 +115,7 @@ class Database:
         if str(guild.id) not in self.scripts:
             self.scripts[f"{guild.id}"] = []
 
-        for module in os.listdir(f"Database/G_{guild.id}/Scripts"):
-            if module == "__pycache__":
-                continue
-            self.scripts[f"{guild.id}"].append(importlib.import_module(f"Database.G_{guild.id}.Scripts.{module}"))
-            try:
-                self.scripts[f"{guild.id}"][-1].init(client)
-            except Exception as ex:
-                print(ex)
+
 
     @logs.error_handler
     def new_member(self, guild: Guild, mention):
@@ -353,13 +362,27 @@ class AchievementsListener:
 
         self.open_achievements()
 
+        self.scripts = []
+
+        if guild is None:
+            return
+
+        for module in os.listdir(f"Database/G_{guild.id}/Scripts"):
+            if not os.path.isfile(f"Database/G_{guild.id}/Scripts/{module}/__init__.py"):
+                self.logger.log("Ignore path {module}")
+                continue
+
+            self.scripts.append(importlib.import_module(f"Database.G_{guild.id}.Scripts.{module}"))
+            try:
+                self.scripts[-1].init(client)
+            except Exception as ex:
+                self.logger.log("Exception while init script: ", ex)
+
     def open_achievements(self):
         self.precreated_achievements = json.load(open(f"{self.achievement_path}achievements.json", encoding="utf-8"))
 
         self.rares = self.precreated_achievements['rares']
         del self.precreated_achievements['rares']
-
-        print(self.precreated_achievements)
 
         self.welcome_achievement = self.precreated_achievements['welcome_achievement']
         del self.precreated_achievements['welcome_achievement']
@@ -404,9 +427,13 @@ class AchievementsListener:
     async def check(self, guild: Guild, member: Member):
         for script in self.database.scripts[f"{guild.id}"]:
             try:
-                script.check(client, guild, member, self, self.database)
-            except Exception as ex:
-                self.logger.log(f"Exception in {script.__name__}: {ex.__traceback__}, {ex}")
+                await script.check(client, guild, member, self, self.database)
+            except:
+                try:
+                    script.check(client, guild, member, self, self.database)
+                except Exception as ex:
+                    self.logger.log(f"Exception in {script.__name__}: {ex.__traceback__}, {ex}")
+
         await asyncio.sleep(0.2)
 
     def add_achievement(self, guild, member, name, description, rare):

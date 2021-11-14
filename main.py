@@ -19,7 +19,6 @@ database = Database("Добро пожаловать на сервер!<Быть
 achievements_listener = AchievementsListener(database)
 
 loaded_emojis = {}
-
 achievements_colors = {}
 
 for rare in achievements_listener.rares:
@@ -223,7 +222,9 @@ async def on_member_join(member):
     else:
         invite_count = int(invite_count)
 
-    add_achievement(member.guild, member.mention, "Добро пожаловать на сервер", "Быть участником сервера", "low")
+    print(f"{inviter.name} has {invite_count+1} invites!")
+
+    add_achievement(member.guild, member, "Добро пожаловать на сервер", "Быть участником сервера", "low")
     database.new_member(member.guild, member.mention)
     database.set_field(member.guild, inviter.mention, "invite_count", invite_count+1)
 
@@ -243,8 +244,6 @@ async def on_ready():
 
     for emoji in client.emojis:
         loaded_emojis[emoji.name[5:]] = emoji
-
-    print(loaded_emojis)
 
     for guild in client.guilds:
         database.add_guild(guild)
@@ -460,14 +459,12 @@ async def achievements(ctx: commands.context.Context):
         embeds[rare][0].set_author(name=member.name, icon_url=member.avatar_url)
 
     for num, achieve in enumerate(database.get_achievements(ctx.guild, member.mention)):
-        try:
-            embeds[achieve[2]][0].add_field(name=f"{achieve[0]}. ", value=f"Описание: {achieve[1]}", inline=True)
-            embeds[achieve[2]][1] += 1
-        except:
-            pass
+        embeds[achieve[2]][0].add_field(name=f"{achieve[0]}. ", value=f"Описание: {achieve[1]}", inline=True)
+        embeds[achieve[2]][1] += 1
 
     for emb in embeds:
-        embeds[emb][0].add_field(name="_______ _______ _______ _______ _______ _______ _______ _______", value=f"Количество {emb.upper()} ачивок: {embeds[emb][1]}")
+        embeds[emb][0].add_field(name="\n_______ _______ _______ _______ _______ _______ _______ _______",
+                                 value=f"Количество {emb.upper()} ачивок: {embeds[emb][1]}")
 
     embeds = [embeds[i][0] for i in embeds]
 
@@ -480,7 +477,7 @@ async def achievements(ctx: commands.context.Context):
 @client.command(aliases=["помощь"])
 async def helper(ctx):
     emb = Embed(title="Помощь")
-    emb.add_field(name="ahcievements, ачивки", value="Показать свои/чужие ачивки")
+    emb.add_field(name="achievements, ачивки", value="Показать свои/чужие ачивки")
     emb.add_field(name="workchat, чат", value="Установить рабочий чат")
     emb.add_field(name="give, дать", value=f"Выдать ачивку. Пример: {command_prefix}@God#0000 Имя<Описание><rare>")
     emb.add_field(name="role, роль", value=f"Добавить роль для администрации. Пример: {command_prefix}Админ")
@@ -500,5 +497,5 @@ async def on_message(ctx):
 
 try:
     client.run(config["token"])
-except:
+except Exception as _:
     disable()

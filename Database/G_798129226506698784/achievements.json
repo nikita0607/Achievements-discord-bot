@@ -7,9 +7,11 @@
     "epic": "0x800080",
     "demon": "0x000000"
   },
+
   "seasons": {
     "season_1": {"count": 5, "achieve": {"name": "Крутой", "description": "Собери все ачивки первого сезона", "rare": "demon"}}
   },
+
   "voicechannels_timed_achievements":
   {
     "Первый разговор": {"season": 1, "time": 1, "description": "Зайди в голосовой канал", "rare": "low"},

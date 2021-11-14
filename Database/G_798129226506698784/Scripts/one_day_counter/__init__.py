@@ -5,13 +5,15 @@ import classes
 c_time = time.time()
 
 
-def init():
+def init(*args):
     pass
 
 
 async def on_message(ctx, listener: classes.AchievementsListener):
     if ctx.author.bot:
         return
+
+    print(ctx.author.name, "wrote message")
 
     database = listener.database
 
