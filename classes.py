@@ -169,7 +169,7 @@ class Database:
         self.new_member(guild, mention)
 
         field = self.get_field(guild, mention, name)
-        print(f"'{name}'", field)
+        # print(f"'{name}'", field)
 
         with sqlite3.connect(f"Database/G_{guild.id}/database.db") as db:
             sql = db.cursor()
@@ -183,7 +183,7 @@ class Database:
             else:
                 fields = sql.fetchone()[2].replace(f"{name}={field},", f"{name}={str(value)},")
 
-            print(fields)
+            # print(fields)
             sql.execute("UPDATE members SET fields=? WHERE mention=?", (fields, mention))
 
     @logs.error_handler
