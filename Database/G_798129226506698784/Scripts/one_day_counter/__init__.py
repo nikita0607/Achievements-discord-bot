@@ -13,7 +13,7 @@ async def on_message(ctx, listener: classes.AchievementsListener):
     if ctx.author.bot:
         return
 
-    print(ctx.author.name, "wrote message")
+    # print(ctx.author.name, "wrote message")
 
     database = listener.database
 

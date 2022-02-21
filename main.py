@@ -258,7 +258,7 @@ async def on_member_join(member):
     else:
         invite_count = int(invite_count)
 
-    print(f"{inviter.name} has {invite_count+1} invites!")
+    # print(f"{inviter.name} has {invite_count+1} invites!")
 
     add_achievement(member.guild, member, "Добро пожаловать на сервер", "Быть участником сервера", "low")
     database.new_member(member.guild, member.mention)

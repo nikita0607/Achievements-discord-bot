@@ -16,7 +16,7 @@ async def on_message(ctx, listener):
     field = int(field) + 1
 
     database.set_field(ctx.guild, ctx.author.mention, "message_count", field)
-    print("Message count:", field)
+    # print("Message count:", field)
 
     guild = ctx.guild
     member = ctx.author
