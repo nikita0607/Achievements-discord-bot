@@ -44,3 +44,6 @@
 14/11/21 19:17:16: Listener: Nikita0607 has got achievement: Долгий разговор
 14/11/21 19:17:29: Listener: Nikita0607 has got achievement: Крутой
 14/11/21 22:29:32: Listener: [FRANXX}~ has got achievement: Первое слово
+22/02/22 02:11:01: module 'Database.G_798129226506698784.Scripts.invite_counter' has no attribute 'init': Exception while init script: 
+22/02/22 02:11:01: init() missing 2 required positional arguments: '_add_achievement' and '_vc_chat_calc': Exception while init script: 
+22/02/22 02:11:02: Listener: Run
