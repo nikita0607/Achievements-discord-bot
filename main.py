@@ -401,6 +401,9 @@ async def set_field(ctx: commands.context.Context):
     member, field_values = get_member_from_text(ctx.guild, ctx.author, content)
     _, field_values = get_args_from_content(content, True)
 
+    if member is None:
+        member = ctx.author
+
     if not len(field_values):
         await send_error(ctx, f"{command_prefix} set_field ARG1=VAL1 ARG2=VAL2")
         return
@@ -515,6 +518,12 @@ async def achievements(ctx: commands.context.Context):
 
     await page.start()
 
+
+@client.command(aliases=["база"])
+@has_admin_role
+async def load_base(ctx: commands.context.Context):
+    ctx.author.send(f"Database from {ctx.guild.name}",
+            file=f"Database/G_{ctx.guild}/database.db")
 
 @client.command(aliases=["помощь"])
 async def helper(ctx):
