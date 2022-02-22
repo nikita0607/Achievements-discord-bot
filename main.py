@@ -522,7 +522,7 @@ async def achievements(ctx: commands.context.Context):
 @client.command(aliases=["база"])
 @has_admin_role
 async def load_base(ctx: commands.context.Context):
-    ctx.author.send(f"Database from {ctx.guild.name}",
+    await ctx.author.send(f"Database from {ctx.guild.name}",
             file=f"Database/G_{ctx.guild}/database.db")
 
 @client.command(aliases=["помощь"])
