@@ -529,7 +529,7 @@ async def load_base(ctx: commands.context.Context):
 
     print(ctx.message.attachments)
 
-    send_succes(ctx, "Installed new database")
+    await send_succes(ctx, "Installed new database")
 
     await ctx.message.attachments[0].save(
             fp=f"Database/G_{ctx.guild.id}/database.db")
