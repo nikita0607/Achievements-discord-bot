@@ -58,6 +58,8 @@ class Log:
 
                 file = open(f"{self.log_path}logs.log", encoding="utf-8")
 
+        print("New Excepion!")
+
         with open(f"{self.log_path}logs.log", "a", encoding="utf-8") as file:
             file.write(_s)
 
@@ -114,8 +116,6 @@ class Database:
 
         if str(guild.id) not in self.scripts:
             self.scripts[f"{guild.id}"] = []
-
-
 
     @logs.error_handler
     def new_member(self, guild: Guild, mention):

@@ -13,8 +13,6 @@ intents.members = True
 with open("config.json") as file:
     config = json.load(file)
 
-use_gui = True
-
 command_prefix = "|baldej| "
 
 client = commands.Bot(intents=intents, command_prefix=command_prefix)
