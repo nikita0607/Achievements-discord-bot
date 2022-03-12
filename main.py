@@ -24,9 +24,13 @@ achievements_colors = {}
 
 for rare in achievements_listener.rares:
     try:
-        achievements_colors[rare] = discord.Color(0).__getattribute__(achievements_listener.rares[rare].lower())()
+        achievements_colors[rare] = discord.Color(0).__getattribute__(
+            achievements_listener.rares[rare].lower()
+        )()
     except:
-        exec(f"achievements_colors[rare] = discord.Colour({achievements_listener.rares[rare]})")
+        exec(
+            f"achievements_colors[rare] = discord.Colour({achievements_listener.rares[rare]})"
+        )
 
 work_chat = {}
 admin_roles = []
@@ -44,13 +48,22 @@ vc_chat_calc = {}
 achievements_listeners = {}
 
 
-def add_achievement(guild: Guild, member: Member, achieve_text, achieve_description, achieve_rare):
-    database.add_achievement(guild, member.mention, achieve_text, achieve_rare, achieve_description)
+def add_achievement(
+    guild: Guild, member: Member, achieve_text, achieve_description, achieve_rare
+):
+    database.add_achievement(
+        guild, member.mention, achieve_text, achieve_rare, achieve_description
+    )
 
     if work_chat[guild.id] is not None:
-        emb = Embed(title="Ачивка!", colour=(
-            achievements_colors[achieve_rare] if achieve_rare in achievements_colors else discord.Colour(0xffffff)
-        ))
+        emb = Embed(
+            title="Ачивка!",
+            colour=(
+                achievements_colors[achieve_rare]
+                if achieve_rare in achievements_colors
+                else discord.Colour(0xFFFFFF)
+            ),
+        )
 
         emb.set_author(name=member.name, icon_url=member.avatar_url)
         emb.add_field(name=f"{achieve_text}.", value=f"Описание: {achieve_description}")
@@ -64,9 +77,11 @@ def get_all_members(guild: Guild):
 
 def get_member(guild, mention_or_name):
     for member in get_all_members(guild):
-        if member.mention == mention_or_name.replace("!", "") or \
-                member.display_name == mention_or_name or \
-                member.name == mention_or_name:
+        if (
+            member.mention == mention_or_name.replace("!", "")
+            or member.display_name == mention_or_name
+            or member.name == mention_or_name
+        ):
             return member
 
 
@@ -88,8 +103,7 @@ def get_member_from_text(guild, user, text) -> tuple:
             return member, text
 
         elif member.display_name in text:
-            text = text.replace(member.display_name
-                                , "")
+            text = text.replace(member.display_name, "")
             while text.startswith(" "):
                 text = text.replace(" ", "", 1)
             return member, text
@@ -108,32 +122,37 @@ def _has_admin_role(member: Member):
 
 
 def has_admin_role(*items):
-
     def dec(ctx: commands.context.Context):
 
         if _has_admin_role(ctx.author):
             return True
         else:
-            send_message(ctx.channel, message=f"{ctx.author.mention}, у вас недостаточно прав!")
+            send_message(
+                ctx.channel, message=f"{ctx.author.mention}, у вас недостаточно прав!"
+            )
             return False
 
     return commands.check(dec)
 
 
 def commands_error_handler(func):
-
     @wraps(wrapped=func)
     async def wraper(ctx: commands.context.Context):
         try:
             await func(ctx)
         except Exception as ex:
-            bot_logger.log(f"Error: Guild:'{ctx.guild.name}', message:'{ctx.message.content}', error:'{ex}:{ex.__traceback__.tb_lineno}'")
+            bot_logger.log(
+                f"Error: Guild:'{ctx.guild.name}', message:'{ctx.message.content}', error:'{ex}:{ex.__traceback__.tb_lineno}'"
+            )
             await send_error(ctx, "Неизвестная ошибка!")
+
     return wraper
 
 
 def send_message(channel, message=None, embed=None):
-    asyncio.run_coroutine_threadsafe(_send_message(channel, message, embed), client.loop)
+    asyncio.run_coroutine_threadsafe(
+        _send_message(channel, message, embed), client.loop
+    )
 
 
 async def _send_message(channel, message=None, embed=None):
@@ -162,7 +181,7 @@ def get_args_from_content(content: str, normolized=False):
     kwargs = {}
     args = []
 
-    str_kwargs: typing.List[str] = re.findall(" [^\s]*=\".*?\"", content)
+    str_kwargs: typing.List[str] = re.findall(' [^\s]*=".*?"', content)
     for _id, arg in enumerate(str_kwargs):
         content = content.replace(arg, "", 1)
         str_kwargs[_id] = arg[1:]
@@ -203,11 +222,10 @@ async def send_succes(ctx, succes_msg):
 
     await ctx.send(f"{ctx.author.mention}", embed=emb)
 
+
 init(client, add_achievement, _vc_chat_calc=vc_chat_calc)
 
-
 ######################  DISCORD COMMANDS ######################
-
 
 bot_logger = Log("discordBot")
 tracker = DiscordUtils.InviteTracker(client)
@@ -221,31 +239,40 @@ def disable():
             if isinstance(channel, VoiceChannel):
                 for member in channel.members:
                     g_time = database.get_field(member.guild, member.mention, "vc_time")
-                    g_time = (float(g_time) if g_time is not None else 0)
+                    g_time = float(g_time) if g_time is not None else 0
 
-                    database.set_field(member.guild, member.mention, "vc_time",
-                                       g_time + time.time() - vc_chat_calc[guild.id][member.mention])
+                    database.set_field(
+                        member.guild,
+                        member.mention,
+                        "vc_time",
+                        g_time + time.time() - vc_chat_calc[guild.id][member.mention],
+                    )
                     achievements_listeners[guild.id].check()
                     del vc_chat_calc[guild.id][member.mention]
 
 
 ###### Invite Checker ######
 
+
 @client.event
 async def on_invite_create(invite):
     await tracker.update_invite_cache(invite)
+
 
 @client.event
 async def on_guild_join(guild):
     await tracker.update_guild_cache(guild)
 
+
 @client.event
 async def on_invite_delete(invite):
     await tracker.remove_invite_cache(invite)
 
+
 @client.event
 async def on_guild_remove(guild):
     await tracker.remove_guild_cache(guild)
+
 
 @client.event
 async def on_member_join(member):
@@ -258,9 +285,16 @@ async def on_member_join(member):
 
     # print(f"{inviter.name} has {invite_count+1} invites!")
 
-    add_achievement(member.guild, member, "Добро пожаловать на сервер", "Быть участником сервера", "low")
+    add_achievement(
+        member.guild,
+        member,
+        "Добро пожаловать на сервер",
+        "Быть участником сервера",
+        "low",
+    )
     database.new_member(member.guild, member.mention)
-    database.set_field(member.guild, inviter.mention, "invite_count", invite_count+1)
+    database.set_field(member.guild, inviter.mention, "invite_count", invite_count + 1)
+
 
 is_ready = False
 
@@ -284,8 +318,12 @@ async def on_ready():
         database.add_guild(guild)
         vc_chat_calc[guild.id] = {}
 
-        achievements_listeners[guild.id] = AchievementsListener(database, f"Database/G_{guild.id}/", guild=guild)
-        asyncio.run_coroutine_threadsafe(achievements_listeners[guild.id].run(guild), client.loop)
+        achievements_listeners[guild.id] = AchievementsListener(
+            database, f"Database/G_{guild.id}/", guild=guild
+        )
+        asyncio.run_coroutine_threadsafe(
+            achievements_listeners[guild.id].run(guild), client.loop
+        )
 
         if guild.id in work_chat:
             continue
@@ -294,20 +332,32 @@ async def on_ready():
     print("Ready!")
     bot_logger.log("Bot is ready!")
 
+
 @client.event
-async def on_voice_state_update(member: Member, before: discord.VoiceState, after: discord.VoiceState):
+async def on_voice_state_update(
+    member: Member, before: discord.VoiceState, after: discord.VoiceState
+):
 
     if before.channel is None and after.channel is not None:
         vc_chat_calc[member.guild.id][member.mention] = time.time()
-        bot_logger.log(f"Member {member.display_name} connected to voice chat on {member.guild.name}!")
+        bot_logger.log(
+            f"Member {member.display_name} connected to voice chat on {member.guild.name}!"
+        )
 
     if before.channel is not None and after.channel is None:
         g_time = database.get_field(member.guild, member.mention, "vc_time")
-        g_time = (float(g_time) if g_time is not None else 0)
+        g_time = float(g_time) if g_time is not None else 0
 
-        database.set_field(member.guild, member.mention, "vc_time", g_time + time.time() - vc_chat_calc[member.guild.id][member.mention])
+        database.set_field(
+            member.guild,
+            member.mention,
+            "vc_time",
+            g_time + time.time() - vc_chat_calc[member.guild.id][member.mention],
+        )
 
-        bot_logger.log(f"Member {member.display_name} disconnected from voice chat on {member.guild.name}!")
+        bot_logger.log(
+            f"Member {member.display_name} disconnected from voice chat on {member.guild.name}!"
+        )
         del vc_chat_calc[member.guild.id][member.mention]
 
 
@@ -321,7 +371,7 @@ async def clear_workchats(ctx: commands.context.Context):
     database.clear_workchats()
 
 
-@client.command(aliases=['чат'])
+@client.command(aliases=["чат"])
 @has_admin_role()
 async def workchat(ctx: commands.context.Context):
     await ctx.send("Рабочий чат установлен!")
@@ -349,7 +399,7 @@ async def give(ctx: commands.context.Context):
     msg = ctx.message.content.replace("\n", "")
 
     msg = msg.replace(" ", "", 1)
-    msg = msg.replace(msg.split()[0]+" ", "")
+    msg = msg.replace(msg.split()[0] + " ", "")
 
     mention = ctx.author.mention
     achive = msg
@@ -357,12 +407,12 @@ async def give(ctx: commands.context.Context):
     try:
         if msg[0] == "<":
             mention = msg.split()[0]
-            achive = msg.replace(msg.split()[0]+" ", "")
+            achive = msg.replace(msg.split()[0] + " ", "")
         print(achive)
         achive = [
-            achive[:achive.index("<")],
-             achive[achive.index("<") + 1:achive.index(">")],
-             achive[achive.index(">") + 2:-1]
+            achive[: achive.index("<")],
+            achive[achive.index("<") + 1 : achive.index(">")],
+            achive[achive.index(">") + 2 : -1],
         ]
     except:
         await get_chat(ctx).send("Проверьте правильность введенных данных!")
@@ -419,7 +469,9 @@ async def set_field(ctx: commands.context.Context):
 async def add_role(ctx: commands.context.Context):
     content = ctx.message.content.split()
     if len(content) < 3:
-        await send_error(ctx, f"{ctx.author.mention}, вы вообще хоть что-нибудь написали?")
+        await send_error(
+            ctx, f"{ctx.author.mention}, вы вообще хоть что-нибудь написали?"
+        )
         return
 
     role = content[2]
@@ -460,7 +512,7 @@ async def delete(ctx: commands.context.Context):
     r_achieve = database.delete_achievement(ctx.guild, member.mention, achieve_name)
 
     if r_achieve is not None:
-        emb.add_field(name=r_achieve[0]+".", value=f"Описание: {r_achieve[1]}")
+        emb.add_field(name=r_achieve[0] + ".", value=f"Описание: {r_achieve[1]}")
 
     if len(emb.fields) < 1:
         emb.add_field(name="Ошибочка", value="Не было удалено ни одной ачивки!")
@@ -498,16 +550,26 @@ async def achievements(ctx: commands.context.Context):
     embeds = {}
     for rare in achievements_colors:
 
-        embeds[rare] = [Embed(title=f"Ачивки пользователя {member.name}:", colour=achievements_colors[rare]), 0]
+        embeds[rare] = [
+            Embed(
+                title=f"Ачивки пользователя {member.name}:",
+                colour=achievements_colors[rare],
+            ),
+            0,
+        ]
         embeds[rare][0].set_author(name=member.name, icon_url=member.avatar_url)
 
     for num, achieve in enumerate(database.get_achievements(ctx.guild, member.mention)):
-        embeds[achieve[2]][0].add_field(name=f"{achieve[0]}. ", value=f"Описание: {achieve[1]}\n", inline=True)
+        embeds[achieve[2]][0].add_field(
+            name=f"{achieve[0]}. ", value=f"Описание: {achieve[1]}\n", inline=True
+        )
         embeds[achieve[2]][1] += 1
 
     for emb in embeds:
-        embeds[emb][0].add_field(name="_______ _______ _______ _______ _______ _______ _______ _______",
-                                 value=f"Количество {emb.upper()} ачивок: {embeds[emb][1]}")
+        embeds[emb][0].add_field(
+            name="_______ _______ _______ _______ _______ _______ _______ _______",
+            value=f"Количество {emb.upper()} ачивок: {embeds[emb][1]}",
+        )
 
     embeds = [embeds[i][0] for i in embeds]
 
@@ -521,16 +583,17 @@ async def achievements(ctx: commands.context.Context):
 @has_admin_role()
 async def load_base(ctx: commands.context.Context):
     if str(ctx.message.attachments) == "[]":
-        await ctx.author.send(f"Database from {ctx.guild.name}",
-            file=discord.File(f"Database/G_{ctx.guild.id}/database.db"))
+        await ctx.author.send(
+            f"Database from {ctx.guild.name}",
+            file=discord.File(f"Database/G_{ctx.guild.id}/database.db"),
+        )
         return
 
     print(ctx.message.attachments)
 
     await send_succes(ctx, "Installed new database")
 
-    await ctx.message.attachments[0].save(
-            fp=f"Database/G_{ctx.guild.id}/database.db")
+    await ctx.message.attachments[0].save(fp=f"Database/G_{ctx.guild.id}/database.db")
 
 
 @client.command(aliases=["помощь"])
@@ -538,11 +601,16 @@ async def helper(ctx):
     emb = Embed(title="Помощь")
     emb.add_field(name="achievements, ачивки", value="Показать свои/чужие ачивки")
     emb.add_field(name="workchat, чат", value="Установить рабочий чат")
-    emb.add_field(name="give, дать", value=f"Выдать ачивку. Пример: {command_prefix}@God#0000 Имя<Описание><rare>")
-    emb.add_field(name="role, роль", value=f"Добавить роль для администрации. Пример: {command_prefix}Админ")
+    emb.add_field(
+        name="give, дать",
+        value=f"Выдать ачивку. Пример: {command_prefix}@God#0000 Имя<Описание><rare>",
+    )
+    emb.add_field(
+        name="role, роль",
+        value=f"Добавить роль для администрации. Пример: {command_prefix}Админ",
+    )
 
     await ctx.send(embed=emb)
-
 
 
 @client.event

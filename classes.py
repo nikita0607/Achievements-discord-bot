@@ -377,7 +377,8 @@ class AchievementsListener:
             try:
                 self.scripts[-1].init(client)
             except Exception as ex:
-                self.logger.log("Exception while init script: ", str(ex))
+                self.logger.log(f"Exception while init {self.scripts[-1]} script: ", 
+                        str(ex))
 
     def open_achievements(self):
         self.precreated_achievements = json.load(open(f"{self.achievement_path}achievements.json", encoding="utf-8"))
