@@ -58,8 +58,6 @@ class Log:
 
                 file = open(f"{self.log_path}logs.log", encoding="utf-8")
 
-        print("New Excepion!")
-
         with open(f"{self.log_path}logs.log", "a", encoding="utf-8") as file:
             file.write(_s)
 
